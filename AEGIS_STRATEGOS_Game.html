@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Aegis Strategos</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --gold:#C9A84C;--gold2:#F0C97A;--dark:#08111A;--panel:#0D1B2A;
+  --card:#111E2D;--border:rgba(201,168,76,0.25);--text:#E2D5C0;--dim:#7A7060;
+  --hero:#4A90D9;--tyrant:#C0392B;--dipl:#27AE60;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-family:'Crimson Text',Georgia,serif;color:var(--text);font-size:17px}
+/* SCREENS */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .5s}
+.screen.on{opacity:1;pointer-events:all;z-index:10}
+
+/* ── TITLE ── */
+#sTITLE{background:radial-gradient(ellipse at 50% 30%,#0a1e30 0%,#050c14 100%);align-items:center;justify-content:center;text-align:center;gap:0}
+.title-stars{position:absolute;inset:0;overflow:hidden}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle var(--d,3s) var(--dl,0s) infinite}
+@keyframes twinkle{0%,100%{opacity:.1}50%{opacity:.8}}
+.title-inner{position:relative;z-index:1;padding:2rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:.6rem}
+.t-rune{font-size:3.5rem;animation:glow 3s ease-in-out infinite;filter:drop-shadow(0 0 20px rgba(201,168,76,.5))}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 10px rgba(201,168,76,.3))}50%{filter:drop-shadow(0 0 30px rgba(201,168,76,.8))}}
+.t-main{font-family:'Cinzel',serif;font-size:clamp(1.8rem,7vw,2.8rem);font-weight:700;color:var(--gold);letter-spacing:.08em;line-height:1.1}
+.t-sub{font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.3em;color:var(--dim);text-transform:uppercase}
+.t-line{width:180px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:.8rem 0}
+.t-quote{font-style:italic;color:rgba(201,168,76,.65);font-size:.9rem;max-width:300px;line-height:1.5}
+.t-btns{display:flex;flex-direction:column;gap:.7rem;width:100%;max-width:300px;margin-top:.5rem}
+.t-btn{font-family:'Cinzel',serif;font-size:.85rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:.85rem 1.5rem;border:1px solid var(--border);background:rgba(201,168,76,.07);color:var(--gold);cursor:pointer;transition:all .25s;border-radius:2px}
+.t-btn:active{background:rgba(201,168,76,.2);transform:scale(.97)}
+.t-btn.primary{border-color:var(--gold);background:rgba(201,168,76,.13);font-size:.95rem}
+
+/* ── CREATE ── */
+#sCREATE{background:var(--dark);overflow-y:auto}
+.create-wrap{padding:1.5rem 1.2rem 4rem;max-width:480px;margin:0 auto}
+.c-header{text-align:center;margin-bottom:1.8rem}
+.c-title{font-family:'Cinzel',serif;font-size:1.3rem;color:var(--gold);margin-bottom:.3rem}
+.c-sub{font-size:.85rem;color:var(--dim);font-style:italic}
+.c-step{display:none}.c-step.on{display:block;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.c-label{font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;display:block}
+.c-input{width:100%;background:rgba(201,168,76,.05);border:1px solid var(--border);color:var(--text);font-family:'Crimson Text',serif;font-size:1.1rem;padding:.75rem 1rem;outline:none;border-radius:2px;transition:border-color .2s}
+.c-input:focus{border-color:var(--gold)}
+.c-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.3rem}
+.c-card{border:1px solid var(--border);background:rgba(201,168,76,.04);padding:.9rem .8rem;cursor:pointer;transition:all .25s;border-radius:2px;text-align:center}
+.c-card:active,.c-card.sel{border-color:var(--gold);background:rgba(201,168,76,.15);box-shadow:0 0 15px rgba(201,168,76,.15)}
+.c-icon{font-size:1.6rem;margin-bottom:.3rem}
+.c-name{font-family:'Cinzel',serif;font-size:.8rem;color:var(--gold);margin-bottom:.2rem}
+.c-desc{font-size:.72rem;color:var(--dim);line-height:1.35}
+.c-bonus{font-size:.68rem;color:#5ba4d4;margin-top:.3rem}
+.c-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--border)}
+.c-dots{display:flex;gap:.4rem}
+.c-dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:.3s}
+.c-dot.on{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.c-btn{font-family:'Cinzel',serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.65rem 1.4rem;border:1px solid var(--gold);background:rgba(201,168,76,.1);color:var(--gold);cursor:pointer;border-radius:2px;transition:all .2s}
+.c-btn:active{background:rgba(201,168,76,.25);transform:scale(.97)}
+.c-btn.sec{border-color:var(--border);color:var(--dim);background:transparent}
+.c-summary{border:1px solid var(--border);background:rgba(201,168,76,.03);padding:1rem;border-radius:2px;line-height:1.9;font-size:.95rem}
+.c-summary b{color:var(--gold)}
+
+/* ── GAME ── */
+#sGAME{background:var(--dark);display:flex;flex-direction:column}
+.topbar{flex-shrink:0;height:48px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 .8rem;gap:.5rem}
+.tb-title{font-family:'Cinzel',serif;font-size:.75rem;color:var(--gold);letter-spacing:.12em;flex:1}
+.tb-btn{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;padding:.35rem .65rem;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;border-radius:2px;transition:all .2s;white-space:nowrap}
+.tb-btn:active{border-color:var(--gold);color:var(--gold)}
+.tb-save{border-color:rgba(39,174,96,.4);color:#27AE60}
+.tb-save:active{background:rgba(39,174,96,.15)}
+
+/* STATS BAR */
+.statsbar{flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border);padding:.4rem .8rem;display:flex;gap:.8rem;align-items:center;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.statsbar::-webkit-scrollbar{display:none}
+.rep-item{display:flex;flex-direction:column;gap:2px;min-width:64px}
+.rep-lbl{font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:.08em;white-space:nowrap}
+.rep-track{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;width:60px}
+.rep-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.rep-hero .rep-lbl{color:var(--hero)}
+.rep-hero .rep-fill{background:linear-gradient(90deg,#1565C0,#64B5F6)}
+.rep-tyrant .rep-lbl{color:var(--tyrant)}
+.rep-tyrant .rep-fill{background:linear-gradient(90deg,#7B0000,#EF5350)}
+.rep-dipl .rep-lbl{color:var(--dipl)}
+.rep-dipl .rep-fill{background:linear-gradient(90deg,#1B5E20,#66BB6A)}
+.rep-val{font-size:.6rem;color:var(--dim)}
+.day-badge{font-family:'Cinzel',serif;font-size:.6rem;color:var(--dim);margin-left:auto;white-space:nowrap;border:1px solid var(--border);padding:.2rem .5rem;border-radius:2px}
+
+/* SCENE */
+.scene-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+.scene-img{flex-shrink:0;height:130px;position:relative;overflow:hidden}
+.scene-bg{position:absolute;inset:0;transition:background 1s ease}
+.scene-grad{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,var(--dark) 100%)}
+.scene-loc{position:absolute;bottom:.6rem;left:.8rem;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);background:rgba(5,10,15,.8);padding:.25rem .6rem;border:1px solid var(--border);border-radius:2px}
+.scene-content{padding:1rem 1.1rem;flex:1}
+.scene-chapter{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:.3rem}
+.scene-title{font-family:'Cinzel',serif;font-size:1.25rem;color:var(--gold2);font-weight:600;line-height:1.2;margin-bottom:.8rem;padding-bottom:.7rem;border-bottom:1px solid var(--border)}
+.cam-note{font-size:.72rem;font-style:italic;color:rgba(201,168,76,.45);padding:.3rem .7rem;border-left:2px solid rgba(201,168,76,.25);background:rgba(201,168,76,.03);margin-bottom:.8rem;border-radius:0 2px 2px 0}
+.scene-text{line-height:1.75;font-size:1rem;color:var(--text)}
+.scene-text p{margin-bottom:.9em}
+.dialogue{color:var(--gold2);font-style:italic}
+.char-name{font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:.05em;display:block;margin-bottom:.1rem}
+.emphasis{color:#E57373;font-style:italic}
+.whisper{color:var(--dim);font-style:italic}
+
+/* CHOICES */
+.choices-wrap{flex-shrink:0;background:linear-gradient(to top,var(--panel) 0%,transparent 100%);padding:.8rem 1rem 1.2rem;border-top:1px solid var(--border)}
+.ch-label{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:.6rem}
+.ch-list{display:flex;flex-direction:column;gap:.45rem}
+.ch-btn{display:flex;align-items:flex-start;gap:.7rem;background:rgba(201,168,76,.04);border:1px solid var(--border);padding:.75rem .85rem;cursor:pointer;text-align:left;transition:all .2s;border-radius:3px;color:var(--text);font-family:'Crimson Text',serif;font-size:.95rem;line-height:1.4;position:relative;overflow:hidden}
+.ch-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);transform:scaleY(0);transition:transform .2s;border-radius:3px 0 0 3px}
+.ch-btn:active{background:rgba(201,168,76,.12);border-color:var(--gold);transform:scale(.99)}
+.ch-btn:active::before{transform:scaleY(1)}
+.ch-key{font-family:'Cinzel',serif;font-size:.65rem;color:var(--gold);background:rgba(201,168,76,.12);border:1px solid var(--border);padding:.2rem .45rem;flex-shrink:0;align-self:flex-start;margin-top:.05rem;border-radius:2px}
+.ch-text{flex:1}
+.ch-eff{font-size:.72rem;color:var(--dim);font-style:italic;margin-top:.2rem;display:block}
+.ch-btn.locked{opacity:.35;pointer-events:none}
+
+/* SLIDE PANEL (stats overlay) */
+.side-panel{position:fixed;inset:0;z-index:50;display:flex}
+.side-panel.hidden{display:none}
+.side-overlay{flex:1;background:rgba(0,0,0,.6)}
+.side-box{width:80%;max-width:320px;background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:1.2rem 1rem;display:flex;flex-direction:column;gap:1rem}
+.s-title{font-family:'Cinzel',serif;color:var(--gold);font-size:.9rem;letter-spacing:.1em;margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+.rel-row{display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid rgba(201,168,76,.06)}
+.rel-icon{font-size:1.2rem;flex-shrink:0}
+.rel-info{flex:1;min-width:0}
+.rel-name{font-size:.78rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rel-role{font-size:.62rem;color:var(--dim)}
+.rel-bar{width:44px;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden;flex-shrink:0}
+.rel-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .6s}
+.q-item{padding:.4rem 0;border-bottom:1px solid rgba(201,168,76,.06)}
+.q-name{font-size:.8rem;color:var(--text)}
+.q-status{font-size:.65rem;color:var(--dim);font-style:italic}
+.q-item.active .q-name{color:var(--gold)}
+.inv-wrap{display:flex;flex-wrap:wrap;gap:.4rem}
+.inv-tag{font-size:.7rem;padding:.25rem .6rem;border:1px solid var(--border);color:var(--dim);border-radius:2px}
+.inv-tag.sp{border-color:rgba(91,164,212,.4);color:#90CAF9}
+.inv-tag.leg{border-color:var(--gold);color:var(--gold)}
+
+/* NOTIFICATION */
+.notifs{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;align-items:center;gap:.4rem;pointer-events:none;width:90%;max-width:360px}
+.notif{background:var(--panel);border:1px solid var(--border);padding:.45rem 1rem;font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);text-align:center;border-radius:3px;animation:notifIn .35s ease,notifOut .35s ease 2.3s forwards;box-shadow:0 4px 20px rgba(0,0,0,.6);white-space:nowrap}
+@keyframes notifIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes notifOut{to{opacity:0;transform:translateY(-8px)}}
+.notif.hero{color:var(--hero);border-color:rgba(74,144,217,.4)}
+.notif.tyrant{color:var(--tyrant);border-color:rgba(192,57,43,.4)}
+.notif.dipl{color:var(--dipl);border-color:rgba(39,174,96,.4)}
+.notif.save{color:#A5D6A7;border-color:rgba(165,214,167,.4)}
+.notif.item{color:var(--gold2);border-color:var(--gold)}
+.notif.quest{color:#80DEEA;border-color:rgba(128,222,234,.4)}
+.notif.rel{color:#CE93D8;border-color:rgba(206,147,216,.4)}
+
+/* SAVE MODAL */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;justify-content:center}
+.modal.hidden{display:none}
+.modal-box{background:var(--panel);border:1px solid var(--border);border-radius:12px 12px 0 0;width:100%;max-width:500px;padding:1.4rem 1.2rem 2rem;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-family:'Cinzel',serif;color:var(--gold);font-size:1rem;text-align:center;margin-bottom:1.2rem}
+.save-slot{border:1px solid var(--border);padding:.85rem;margin-bottom:.7rem;border-radius:3px;background:rgba(201,168,76,.03);display:flex;align-items:center;justify-content:space-between;gap:.8rem}
+.slot-info .slot-name{font-family:'Cinzel',serif;font-size:.8rem;color:var(--text)}
+.slot-info .slot-det{font-size:.68rem;color:var(--dim);margin-top:.15rem}
+.slot-actions{display:flex;gap:.4rem}
+.slot-btn{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;padding:.3rem .6rem;border-radius:2px;cursor:pointer;transition:all .2s;border:1px solid var(--border);background:transparent;color:var(--dim)}
+.slot-btn.sv{border-color:rgba(39,174,96,.4);color:#66BB6A}
+.slot-btn.ld{border-color:rgba(74,144,217,.4);color:#64B5F6}
+.slot-btn.dl{border-color:rgba(192,57,43,.3);color:#EF5350}
+.slot-btn:active{opacity:.7}
+.modal-close{display:block;margin:1rem auto 0;font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;padding:.6rem 1.6rem;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;border-radius:2px}
+
+/* ENDING */
+#sEND{background:var(--dark);align-items:center;justify-content:center;text-align:center;padding:2rem 1.5rem;overflow-y:auto}
+.end-icon{font-size:3.5rem;margin-bottom:1rem;animation:glow 3s ease-in-out infinite}
+.end-title{font-family:'Cinzel',serif;font-size:1.8rem;color:var(--gold);margin-bottom:.4rem}
+.end-sub{color:var(--dim);font-style:italic;margin-bottom:1.5rem}
+.end-text{max-width:380px;margin:0 auto 1.5rem;line-height:1.75;font-size:.95rem}
+.end-stats{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin-bottom:1.5rem}
+.end-stat{border:1px solid var(--border);padding:.6rem 1.2rem;border-radius:3px;text-align:center}
+.end-stat-v{font-family:'Cinzel',serif;font-size:1.5rem;color:var(--gold)}
+.end-stat-l{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+.end-btns{display:flex;flex-direction:column;gap:.6rem;width:100%;max-width:280px;margin:0 auto}
+</style>
+</head>
+<body>
+
+<div class="notifs" id="notifs"></div>
+
+<!-- ── TITLE ── -->
+<div class="screen on" id="sTITLE">
+  <div class="title-stars" id="stars"></div>
+  <div class="title-inner">
+    <div class="t-rune">⚜</div>
+    <div class="t-main">AEGIS<br>STRATEGOS</div>
+    <div class="t-sub">Das Erbe der Sechs Feuer</div>
+    <div class="t-line"></div>
+    <div class="t-quote">„In Arkalos gibt es keine Helden und keine Schurken — nur Überlebende."</div>
+    <div class="t-btns">
+      <button class="t-btn primary" onclick="startNew()">⚔ Neues Spiel</button>
+      <button class="t-btn" onclick="openModal()">📂 Laden / Speichern</button>
+    </div>
+    <div style="font-size:.7rem;color:var(--dim);margin-top:.8rem;font-style:italic">Avatar × Game of Thrones × Fantasy</div>
+  </div>
+</div>
+
+<!-- ── CREATE ── -->
+<div class="screen" id="sCREATE">
+  <div class="create-wrap">
+    <div class="c-header">
+      <div class="c-title">⚜ Charakter erschaffen</div>
+      <div class="c-sub">Dein Schicksal beginnt mit einer Wahl.</div>
+    </div>
+
+    <div class="c-step on" id="step1">
+      <div style="margin-bottom:1.2rem">
+        <label class="c-label">Dein Name</label>
+        <input class="c-input" id="pName" placeholder="Name eingeben…" maxlength="24">
+      </div>
+      <div>
+        <label class="c-label">Geschlecht</label>
+        <div class="c-grid">
+          <div class="c-card" onclick="pick('gender','m',this)"><div class="c-icon">⚔</div><div class="c-name">Männlich</div></div>
+          <div class="c-card" onclick="pick('gender','f',this)"><div class="c-icon">🗡</div><div class="c-name">Weiblich</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-step" id="step2">
+      <label class="c-label">Dein Element-Erbe</label>
+      <div class="c-grid">
+        <div class="c-card" onclick="pick('element','Feuer',this)"><div class="c-icon">🔥</div><div class="c-name">Feuer</div><div class="c-desc">Pyros-Reich. Leidenschaftlich, direkt.</div><div class="c-bonus">+Tyrann, +Kampf</div></div>
+        <div class="c-card" onclick="pick('element','Wasser',this)"><div class="c-icon">🌊</div><div class="c-name">Wasser</div><div class="c-desc">Hydrakon-Bucht. Heilend, strategisch.</div><div class="c-bonus">+Diplomat</div></div>
+        <div class="c-card" onclick="pick('element','Erde',this)"><div class="c-icon">🪨</div><div class="c-name">Erde</div><div class="c-desc">Chthonos. Sturr, ehrenhaft.</div><div class="c-bonus">+Held, +Kampf</div></div>
+        <div class="c-card" onclick="pick('element','Wind',this)"><div class="c-icon">💨</div><div class="c-name">Wind</div><div class="c-desc">Anemoia. Frei, unberechenbar.</div><div class="c-bonus">+Alle Reputationen</div></div>
+        <div class="c-card" onclick="pick('element','Äther',this)"><div class="c-icon">✨</div><div class="c-name">Äther</div><div class="c-desc">Nephos-Orden. Weise, mystisch.</div><div class="c-bonus">+Wissen, +Diplomat</div></div>
+        <div class="c-card" onclick="pick('element','Schatten',this)"><div class="c-icon">🌑</div><div class="c-name">Schatten</div><div class="c-desc">Eremos-Wüste. Tödlich, heimatlos.</div><div class="c-bonus">+Stealth, +Tyrann</div></div>
+      </div>
+    </div>
+
+    <div class="c-step" id="step3">
+      <label class="c-label">Deine Herkunft</label>
+      <div class="c-grid">
+        <div class="c-card" onclick="pick('bg','Krieger',this)"><div class="c-icon">⚔</div><div class="c-name">Krieger</div><div class="c-desc">Du kennst Krieg — seinen Preis und seinen Nutzen.</div><div class="c-bonus">+15 Kampf</div></div>
+        <div class="c-card" onclick="pick('bg','Diplomat',this)"><div class="c-icon">📜</div><div class="c-name">Diplomat</div><div class="c-desc">Worte sind deine Waffe.</div><div class="c-bonus">+15 Diplomat</div></div>
+        <div class="c-card" onclick="pick('bg','Spion',this)"><div class="c-icon">🕵</div><div class="c-name">Spion</div><div class="c-desc">Kein echtes Gesicht. Das ist Stärke.</div><div class="c-bonus">+Geheimquests</div></div>
+        <div class="c-card" onclick="pick('bg','Adliger',this)"><div class="c-icon">👑</div><div class="c-name">Adliger</div><div class="c-desc">Geburt als erster Vorteil — und Fluch.</div><div class="c-bonus">+Fraktionszugang</div></div>
+        <div class="c-card" onclick="pick('bg','Gelehrter',this)"><div class="c-icon">📚</div><div class="c-name">Gelehrter</div><div class="c-desc">Wissen aus der Großen Bibliothek.</div><div class="c-bonus">+Info in Dialogen</div></div>
+        <div class="c-card" onclick="pick('bg','Verbannter',this)"><div class="c-icon">🏚</div><div class="c-name">Verbannter</div><div class="c-desc">Alles verloren. Das macht frei — oder gefährlich.</div><div class="c-bonus">+Eremos-Zugang</div></div>
+      </div>
+    </div>
+
+    <div class="c-step" id="step4">
+      <div class="c-summary" id="summaryBox"></div>
+      <div style="margin-top:1rem;border-left:3px solid var(--gold);padding:.7rem .9rem;background:rgba(201,168,76,.04);font-style:italic;color:var(--dim);font-size:.85rem;border-radius:0 3px 3px 0">
+        „Arkalos ist zerrissen. Das Pyros-Imperium marschiert. Die Prophezeiung der Sechs Feuer wartet auf den Fremden, der keine Seite kennt — aber jede versteht."
+      </div>
+    </div>
+
+    <div class="c-nav">
+      <button class="c-btn sec" id="btnPrev" onclick="prevStep()" style="visibility:hidden">◀ Zurück</button>
+      <div class="c-dots">
+        <div class="c-dot on" id="dot1"></div><div class="c-dot" id="dot2"></div>
+        <div class="c-dot" id="dot3"></div><div class="c-dot" id="dot4"></div>
+      </div>
+      <button class="c-btn" id="btnNext" onclick="nextStep()">Weiter ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── GAME ── -->
+<div class="screen" id="sGAME">
+  <div class="topbar">
+    <div class="tb-title" id="tbTitle">⚜ Aegis Strategos</div>
+    <button class="tb-btn" onclick="togglePanel()">👤</button>
+    <button class="tb-btn tb-save" onclick="quickSave()">💾 Speichern</button>
+    <button class="tb-btn" onclick="openModal()">📂</button>
+  </div>
+  <div class="statsbar">
+    <div class="rep-item rep-hero"><span class="rep-lbl">⚔ HELD <span class="rep-val" id="repHV">30</span></span><div class="rep-track"><div class="rep-fill" id="repHB" style="width:30%"></div></div></div>
+    <div class="rep-item rep-tyrant"><span class="rep-lbl">👁 TYRANN <span class="rep-val" id="repTV">10</span></span><div class="rep-track"><div class="rep-fill" id="repTB" style="width:10%"></div></div></div>
+    <div class="rep-item rep-dipl"><span class="rep-lbl">🤝 DIPL. <span class="rep-val" id="repDV">20</span></span><div class="rep-track"><div class="rep-fill" id="repDB" style="width:20%"></div></div></div>
+    <div class="day-badge" id="dayBadge">Tag 1</div>
+  </div>
+  <div class="scene-wrap" id="sceneWrap">
+    <div class="scene-img">
+      <div class="scene-bg" id="sceneBg"></div>
+      <div class="scene-grad"></div>
+      <div class="scene-loc" id="sceneLoc">Arkalos</div>
+    </div>
+    <div class="scene-content">
+      <div class="scene-chapter" id="sceneChapter"></div>
+      <div class="scene-title" id="sceneTitle"></div>
+      <div class="cam-note" id="camNote"></div>
+      <div class="scene-text" id="sceneText"></div>
+    </div>
+  </div>
+  <div class="choices-wrap">
+    <div class="ch-label">Was tust du?</div>
+    <div class="ch-list" id="choicesList"></div>
+  </div>
+</div>
+
+<!-- ── SIDE PANEL ── -->
+<div class="side-panel hidden" id="sidePanel">
+  <div class="side-box">
+    <div>
+      <div class="s-title">Charakter</div>
+      <div style="font-family:'Cinzel',serif;font-size:1rem;color:var(--gold2)" id="spName">-</div>
+      <div style="font-size:.8rem;color:var(--dim);margin-top:.2rem" id="spDetails">-</div>
+    </div>
+    <div>
+      <div class="s-title">Beziehungen</div>
+      <div id="spRels"></div>
+    </div>
+    <div>
+      <div class="s-title">Quests</div>
+      <div id="spQuests"><div style="font-size:.8rem;color:var(--dim);font-style:italic">Keine aktiven Quests.</div></div>
+    </div>
+    <div>
+      <div class="s-title">Inventar</div>
+      <div class="inv-wrap" id="spInv"><div style="font-size:.8rem;color:var(--dim);font-style:italic">Leer.</div></div>
+    </div>
+  </div>
+  <div class="side-overlay" onclick="togglePanel()"></div>
+</div>
+
+<!-- ── SAVE MODAL ── -->
+<div class="modal hidden" id="saveModal">
+  <div class="modal-box">
+    <div class="modal-title">⚔ Speicherstände</div>
+    <div id="slotsWrap"></div>
+    <button class="modal-close" onclick="closeModal()">Schließen</button>
+  </div>
+</div>
+
+<!-- ── ENDING ── -->
+<div class="screen" id="sEND">
+  <div class="end-icon" id="endIcon">⚜</div>
+  <div class="end-title" id="endTitle">Ende</div>
+  <div class="end-sub" id="endSub"></div>
+  <div class="end-text" id="endText"></div>
+  <div class="end-stats" id="endStats"></div>
+  <div class="end-btns">
+    <button class="t-btn primary" onclick="startNew()">⚔ Neu beginnen</button>
+    <button class="t-btn" onclick="show('sTITLE')">🏠 Hauptmenü</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// AEGIS STRATEGOS — Mobile Story RPG Engine
+// ═══════════════════════════════════════════
+
+// ── STATE ──
+let G = {
+  player: { name:'', element:'', bg:'', gender:'' },
+  rep: { hero:30, tyrant:10, dipl:20 },
+  rels: {
+    tyrion:   {name:'Tyrion Lannist',  icon:'🎭', role:'Stratege',    trust:20, loyalty:15, met:false},
+    katara:   {name:'Katara',          icon:'🌊', role:'Heilerin',    trust:30, loyalty:20, met:false},
+    zuko:     {name:'Prinz Zuko',      icon:'🔥', role:'Verbannter',  trust:15, loyalty:10, met:false},
+    azula:    {name:'Azula',           icon:'⚡', role:'Kommandantin',trust:5,  loyalty:5,  met:false},
+    iroh:     {name:'General Iroh',    icon:'🍵', role:'Berater',     trust:40, loyalty:30, met:false},
+    cersei:   {name:'Kaiserin Cersei', icon:'👑', role:'Kaiserin',    trust:5,  loyalty:5,  met:false},
+    toph:     {name:'Toph Beifongan',  icon:'🪨', role:'Kämpferin',   trust:20, loyalty:10, met:false},
+    aang:     {name:'Aang der Weise',  icon:'✨', role:'Luftweise',   trust:35, loyalty:25, met:false},
+    daenerys: {name:'Daenerys',        icon:'🐉', role:'Anführerin',  trust:25, loyalty:20, met:false},
+    jon:      {name:'General Jon',     icon:'❄',  role:'General',     trust:30, loyalty:30, met:false},
+    arya:     {name:'Arya Stark',      icon:'🗡', role:'Assassinin',  trust:10, loyalty:5,  met:false},
+    baelish:  {name:'Lord Baelish',    icon:'🕸', role:'Spymaster',   trust:5,  loyalty:5,  met:false},
+  },
+  inv: [],
+  quests: [],
+  flags: {},
+  day: 1,
+  scene: 'intro',
+  chapter: 'Prolog'
+};
+
+// ── CREATION STATE ──
+let step = 1;
+let picks = {gender:null, element:null, bg:null};
+
+// ── ITEMS ──
+const ITEMS = {
+  heal_potion:    {n:'💊 Heiltrunk',          cls:''},
+  hydrakon_doc:   {n:'📜 Hydrakon-Vertrag',   cls:'sp'},
+  baelish_letter: {n:'🕸 Baelish-Brief',      cls:'sp'},
+  nephos_scroll:  {n:'✨ Nephos-Schriftrolle', cls:'leg'},
+  zuko_sword:     {n:'⚔ Zukos Schwert',       cls:'leg'},
+  six_fires_shard:{n:'🔮 Scherbe der Sechs',  cls:'leg'},
+  gold_coins:     {n:'💰 Goldmünzen',         cls:''},
+  iroh_tea:       {n:'🍵 Irohs Tee',          cls:'sp'},
+  anemoia_totem:  {n:'💨 Anemoia-Totem',      cls:'sp'},
+  evidence:       {n:'📋 Verräter-Beweise',   cls:'leg'},
+};
+
+// ── SCENES DATABASE ──
+const SCENES = {
+
+/* ─ INTRO ─ */
+intro:{
+  ch:'Prolog: Ankunft', title:'Der erste Atemzug von Arkalos',
+  loc:'Kaloneros — Hafen', day:1,
+  bg:'linear-gradient(135deg,#0a1828,#051018)',
+  cam:'📷 Weitwinkel — Morgenrot. Langsamer Zoom auf eine Gestalt am Kai.',
+  text:`<p>Der Hafen von <em>Kaloneros</em> erwacht. Salzluft, Möwenschreie, das Knarzen von Holzplanken unter deinen Stiefeln.</p>
+<p>Du kommst von einem Handelsschiff. Niemand weiß, wer du bist. Hier ist das noch möglich — die <em>freie Stadt</em>, neutral in der Theorie, käuflich in der Praxis.</p>
+<p>Am Ende des Stegs wartet ein kleiner Mann. Er ist elegant gekleidet, ein Glas Wein in der Hand — um acht Uhr morgens. Seine Augen sind zu wach für diese Tageszeit.</p>
+<span class="char-name">TYRION VON LANNIST, Stratege der Hydrakon-Gilde:</span>
+<p class="dialogue">„Ah. Der Neuankömmling. Diese Stadt zieht Ehrgeizige wie Flammen Motten. Willkommen in Kaloneros — wo jeder vorgibt, jemand anderes zu sein."</p>`,
+  choices:[
+    {k:'A', t:'„Wer seid Ihr — und warum wartet Ihr auf mich?"', e:'Vorsichtig. Tyrion respektiert das.',
+     fx:{rep_dipl:3, rel_tyrion_trust:5, rel_tyrion_met:true}, next:'tyrion_taverne'},
+    {k:'B', t:'„Ich bin nicht hergekommen, um mit Fremden zu reden."', e:'Kalt. Tyrion notiert es.',
+     fx:{rep_hero:3, rel_tyrion_trust:-3, rel_tyrion_met:true}, next:'tyrion_taverne'},
+    {k:'C', t:'„Normalerweise braucht es Tage, bis die Gilde bemerkt, dass ich da bin."', e:'Selbstbewusst. Das amüsiert ihn.',
+     fx:{rep_dipl:5, rel_tyrion_trust:10, rel_tyrion_met:true}, next:'tyrion_taverne'},
+  ]
+},
+
+/* ─ TYRION TAVERNE ─ */
+tyrion_taverne:{
+  ch:'Prolog: Das Angebot', title:'Das Spiel beginnt',
+  loc:'Kaloneros — Taverne „Zum Goldenen Anker"', day:1,
+  bg:'linear-gradient(135deg,#0d1520,#0a1030)',
+  cam:'📷 Enge Ecke. Tyrions Gesicht im Kerzenlicht. Nahaufnahme auf das Weinglas — halb leer.',
+  text:`<p>In der dunkelsten Ecke der Taverne spricht Tyrion mit der Präzision eines Mannes, der Worte wie Werkzeug benutzt:</p>
+<span class="char-name">TYRION:</span>
+<p class="dialogue">„Arkalos steht am Rand eines Krieges. Das Pyros-Imperium hat drei Legionen an die Grenzen befohlen. Kaiserin Cersei nennt es 'Schutzmaßnahme'. Eine charmante Lüge."</p>
+<p>Er dreht das Glas zwischen den Fingern.</p>
+<p class="dialogue">„Die Hydrakon-Gilde braucht jemanden ohne vorbelastete Loyalitäten — jemanden, der zwischen Fraktionen arbeiten kann. Ich biete Information und Ressourcen. Als Gegenleistung: Ihr hört mir zu."</p>
+<p>Er lehnt sich vor. Die amüsierte Miene ist verschwunden.</p>
+<p class="dialogue">„Was habt Ihr zu bieten, das mich interessieren sollte?"</p>`,
+  choices:[
+    {k:'A', t:'"Ich bin gut mit dem Schwert — und mit Worten, wenn nötig."', e:'Direkt. Tyrion schätzt das.',
+     fx:{rep_hero:3, rel_tyrion_trust:8}, next:'hafen_event'},
+    {k:'B', t:'"Information aus erster Hand über das Imperium."', e:'Verhandlungsposition. Er ist interessiert.',
+     fx:{rep_dipl:5, rel_tyrion_trust:12, flag_told_tyrion:true}, next:'hafen_event'},
+    {k:'C', t:'"Nichts. Ich arbeite für mich — vorerst."', e:'Tyrion lächelt. Er kennt die Antwort.',
+     fx:{rep_hero:5, rel_tyrion_respect:8}, next:'hafen_event'},
+  ]
+},
+
+/* ─ HAFEN EVENT ─ */
+hafen_event:{
+  ch:'Kapitel 1: Der Fremde', title:'Blut am Kai',
+  loc:'Kaloneros — Südhafen', day:1,
+  bg:'linear-gradient(135deg,#1a1405,#251d08)',
+  cam:'📷 Handheld. Schreie. Schnelle Schnitte. Dann: Weitwinkel auf eine Frau, die gegen imperiale Wachen kämpft.',
+  text:`<p>Auf dem Weg zurück siehst du es: Imperiale Wachen — in Pyros-Farben, dunkelrot und gold — umringen einen Händler und eine junge Frau.</p>
+<p>Die Frau hat Wasser-Markierungen auf dem Gewand. Ihre Hände sind ruhig. <em>Zu</em> ruhig.</p>
+<span class="char-name">KATARA, Heilerin der Hydrakon-Bucht:</span>
+<p class="dialogue">„Lasst ihn. Er steht unter dem Schutz der freien Stadt. Das ist euer letzter fairer Hinweis."</p>
+<p>Die Wachen lachen. Einer zieht das Schwert.</p>
+<p>Du stehst zwanzig Schritte entfernt. Noch hat dich niemand bemerkt.</p>`,
+  choices:[
+    {k:'A', t:'Eingreifen — Katara verteidigen.', e:'Heldenruf +8. Katara wird es merken.',
+     fx:{rep_hero:8, rel_katara_trust:15, rel_katara_loyalty:10, rel_katara_met:true, item:'heal_potion'}, next:'katara_danke'},
+    {k:'B', t:'Beobachten — herausfinden, was in der Truhe ist.', e:'Strategisch. Katara beobachtet dich dabei.',
+     fx:{rep_dipl:3, rep_hero:-3, rel_katara_trust:-5, rel_katara_met:true}, next:'katara_beobachtet'},
+    {k:'C', t:'Die Imperialen diplomatisch ansprechen.', e:'Riskant — aber zeigt Mut.',
+     fx:{rep_dipl:8, rel_katara_trust:8, rel_katara_met:true}, next:'katara_danke'},
+  ]
+},
+
+/* ─ KATARA DANKE ─ */
+katara_danke:{
+  ch:'Kapitel 1', title:'Wasser kennt keine Lüge',
+  loc:'Kaloneros — Heilertempel', day:1,
+  bg:'linear-gradient(135deg,#051520,#0a2030)',
+  cam:'📷 Kerzenlicht im Hinterzimmer. Kataras Hände heilen einen Verletzten. Ruhig. Vertrauensvoll.',
+  text:`<p>Im Hinterzimmer des Heilertempels spricht Katara, während sie gleichzeitig Wunden behandelt.</p>
+<span class="char-name">KATARA:</span>
+<p class="dialogue">„Die Truhe enthält eine Schriftrolle des Nephos-Ordens. Eine Prophezeiung über das Ende des Bürgerkriegs — oder seinen Beginn. Das Imperium will sie versiegeln. Damit niemand sieht, dass ihre Herrschaft auf einer Lüge basiert."</p>
+<p>Sie hält inne bei einem alten Mann mit Brandnarben.</p>
+<p class="dialogue">„Er ist aus Portonikos. Die Imperialen haben es 'beschützt'. Er ist einer von zwanzig, die entkommen sind."</p>
+<p>Dann dreht sie sich zu dir.</p>
+<p class="dialogue">„Du hast geholfen, ohne zu fragen. Das ist selten. Ich bin Katara. Ich bin dein Schuldner."</p>`,
+  choices:[
+    {k:'A', t:'"Keine Schulden. Was ist in der Prophezeiung?"', e:'Direkt und neugierig.',
+     fx:{rep_dipl:3, rel_katara_trust:8, rel_katara_bond:5}, next:'erste_wahl'},
+    {k:'B', t:'"Was machen imperiale Wachen in einer freien Stadt?"', e:'Die richtige Frage. Katara nickt.',
+     fx:{rep_dipl:5, rel_katara_trust:10}, next:'erste_wahl'},
+    {k:'C', t:'"Sag mir mehr. Je mehr ich weiß, desto besser kann ich handeln."', e:'Pragmatisch. Katara vertraut dir mehr.',
+     fx:{rel_katara_trust:12, rel_katara_bond:8, item:'heal_potion'}, next:'erste_wahl'},
+  ]
+},
+
+/* ─ KATARA BEOBACHTET ─ */
+katara_beobachtet:{
+  ch:'Kapitel 1', title:'Der Beobachter im Schatten',
+  loc:'Kaloneros — Südhafen', day:1,
+  bg:'linear-gradient(135deg,#050a0f,#0a0f18)',
+  cam:'📷 Subjektiv: du siehst, wie Katara kämpft. Dann ihr Blick — direkt in deine Richtung.',
+  text:`<p>Katara kämpft sich allein frei. Wasser schießt aus einem nahen Eimer und wirft drei Wachen zu Boden. Der Händler flieht.</p>
+<p>Als die Menge sich auflöst, steht Katara auf dem leeren Kai. Sie dreht sich in deine Richtung.</p>
+<span class="char-name">KATARA:</span>
+<p class="dialogue" style="color:#aad4ee;">„Ich weiß, dass Ihr dort steht. Ihr habt einfach zugeschaut."</p>
+<p>Keine Anklage. Eine Feststellung.</p>`,
+  choices:[
+    {k:'A', t:'"Ich wollte verstehen, mit wem ich es zu tun habe."', e:'Ehrlich. Katara respektiert das.',
+     fx:{rel_katara_trust:5, rel_katara_respect:5}, next:'erste_wahl'},
+    {k:'B', t:'"Die Imperialen hätten mit mir anders ausgesehen."', e:'Arrogant. Katara ist nicht beeindruckt.',
+     fx:{rep_tyrant:3, rel_katara_trust:-5}, next:'erste_wahl'},
+    {k:'C', t:'Schweigen.',
+     fx:{rep_hero:-3}, next:'erste_wahl'},
+  ]
+},
+
+/* ─ ERSTE WAHL ─ */
+erste_wahl:{
+  ch:'Kapitel 1: Drei Wege', title:'Arkalos wartet',
+  loc:'Kaloneros — Stadtplatz', day:2,
+  bg:'linear-gradient(135deg,#101820,#151e28)',
+  cam:'📷 Weitwinkel: die Stadt von oben. Drei Richtungen.',
+  text:`<p>Der zweite Morgen in Kaloneros.</p>
+<p>Tyrion hat drei Fäden für dich gelegt:</p>
+<p><strong>Im Nordosten:</strong> Die kaiserliche Gesandtschaft des Pyros-Reichs. Prinz Zuko ist dort — der verbannte Erstgeborene des alten Kaisers.</p>
+<p><strong>In den östlichen Gassen:</strong> Ein alter Mann mit einem Teestand. Die Leute nennen ihn <em>Iroh</em>. Ehemaliger pyrosischer General. Er fragt nach jedem, der von einem Schiff kommt.</p>
+<p><strong>Am Hafen:</strong> Katara reist heute zur Hydrakon-Bucht zurück — und lädt dich ein.</p>
+<span class="char-name">TYRION:</span>
+<p class="dialogue">„Der Kluge beobachtet, bevor er handelt. Was werdet Ihr tun?"</p>`,
+  choices:[
+    {k:'A', t:'Zur imperialen Gesandtschaft — Zuko treffen.', e:'Direkt ins Feuer. Riskant.',
+     fx:{rep_dipl:5, day:+1}, next:'zuko_treffen'},
+    {k:'B', t:'Den alten Mann am Teestand besuchen — Iroh.', e:'Neugier. Er weiß mehr als er sagt.',
+     fx:{rel_iroh_met:true, day:+1}, next:'iroh_tee'},
+    {k:'C', t:'Mit Katara zur Hydrakon-Bucht reisen.', e:'Sicher. Beziehungen zuerst.',
+     fx:{rel_katara_trust:5, item:'hydrakon_doc', day:+2}, next:'hydrakon_gilde'},
+  ]
+},
+
+/* ─ ZUKO ─ */
+zuko_treffen:{
+  ch:'Kapitel 2: Das Imperium', title:'Die Narbe des Prinzen',
+  loc:'Kaloneros — Imperiale Gesandtschaft', day:2,
+  bg:'linear-gradient(135deg,#2a0a0a,#1a0505)',
+  cam:'📷 Rote Banner, ewige Flammen. Dann: ein junger Mann in einfacher Kleidung mit einer Narbe.',
+  text:`<p>Die Gesandtschaft des Pyros-Imperiums ist ein Haus, das Stärke ausstrahlen soll. Rote Granitsäulen. Flammen, die auch am Tag nicht verlöschen.</p>
+<p>Der Mann, der dich erwartet, ist jung — Mitte zwanzig. Einfache Kleidung. Eine Narbe, die sein linkes Auge halb verdeckt. Er steht wie ein Krieger, auch ohne Rüstung.</p>
+<span class="char-name">PRINZ ZUKO PYROTHEON:</span>
+<p class="dialogue">„Ich bin nicht der Botschafter."</p>
+<p>Er sagt es ohne Einleitung.</p>
+<p class="dialogue">„Der Botschafter meiner Schwester empfängt morgen. Ich bin jemand, der zufällig hier ist — so sagt man es offiziell."</p>
+<p>Ein Zucken um seinen Mund — nicht Belustigung, eher Bitterkeit.</p>
+<p class="dialogue">„Was wollt Ihr wirklich hier?"</p>`,
+  choices:[
+    {k:'A', t:'"Für mich — vorerst noch."', e:'Direkt. Zuko schätzt das.',
+     fx:{rel_zuko_trust:10, rel_zuko_met:true}, next:'zuko_gespräch'},
+    {k:'B', t:'"Das ist eine Frage, die ich zurückgeben müsste, Prinz Zuko."', e:'Ihr kennt seinen Namen. Er ist überrascht.',
+     fx:{rel_zuko_respect:15, rel_zuko_trust:8, rel_zuko_met:true}, next:'zuko_gespräch'},
+    {k:'C', t:'"Ich glaube nicht, dass das Imperium Arkalos stabilisiert."', e:'Direkt. Trifft ihn tiefer als erwartet.',
+     fx:{rep_hero:5, rel_zuko_bond:10, rel_zuko_trust:5, rel_zuko_met:true}, next:'zuko_gespräch'},
+  ]
+},
+
+zuko_gespräch:{
+  ch:'Kapitel 2', title:'Was ein Prinz verlor',
+  loc:'Gesandtschaft — Hintergarten', day:2,
+  bg:'linear-gradient(135deg,#1a0808,#250d0d)',
+  cam:'📷 Garten. Kein Zierfeuer hier — Zuko sucht Ruhe. Seine Hände an einem Geländer.',
+  text:`<span class="char-name">ZUKO:</span>
+<p class="dialogue">„Mein Vater war Kaiser. Er wurde verdrängt — diplomatisch ausgedrückt. Die Wahrheit: Er starb, und Cersei hat dafür gesorgt, dass ich keinen Anspruch mehr stellen konnte."</p>
+<p>Er sagt es ohne Bitterkeit. Zu ohne.</p>
+<p class="dialogue">„Azula ist jetzt Kommandantin. Ich bin hier als 'Berater' — tatsächlich als Geisel. Falls ich mich falsch verhalte, gibt es Konsequenzen für Menschen, die mir wichtig sind."</p>
+<p>Er dreht sich zu dir um.</p>
+<p class="dialogue">„Das Imperium ist nicht so stark, wie es aussieht. Und nicht alle unterstützen den Krieg. Ich bin nicht der Einzige. Mein Schwert — das einzige, das meiner Mutter gehörte — wurde mir von Azula weggenommen. Es liegt im kaiserlichen Archiv."</p>
+<p>Er beendet den Satz nicht. Er muss es nicht.</p>`,
+  choices:[
+    {k:'A', t:'"Ich werde es finden. Kein Versprechen — aber ich versuche es."',
+     fx:{rel_zuko_trust:15, rel_zuko_bond:10, quest_zuko_sword:true}, next:'iroh_tee', addQ:'⚔ Das Ehren-Schwert: Finde Zukos Schwert im Archiv.'},
+    {k:'B', t:'"Was braucht ihr, um etwas zu verändern?"', e:'Die richtige Frage.',
+     fx:{rel_zuko_trust:12, rel_zuko_bond:8}, next:'iroh_tee'},
+    {k:'C', t:'Schweigen — und warten, ob er mehr sagt.',
+     fx:{rel_zuko_trust:5, rel_zuko_respect:5}, next:'iroh_tee'},
+  ]
+},
+
+/* ─ IROH ─ */
+iroh_tee:{
+  ch:'Kapitel 2: Der Drache', title:'Der Drache trinkt Tee',
+  loc:'Kaloneros — Teestand „Goldener Drache"', day:2,
+  bg:'linear-gradient(135deg,#0a1010,#0f1a15)',
+  cam:'📷 Wärme. Dampf vom Tee. Iroh sitzt entspannt — aber sein Rücken verrät den Krieger.',
+  text:`<p>Der alte Mann bereitet Tee mit einer Sorgfalt zu, als würde er einen Verbündeten heilen.</p>
+<span class="char-name">GENERAL IROH, „Der Drache des Westens":</span>
+<p class="dialogue">„Setzt Euch. Ihr schaut so aus, als hättet Ihr Tee nötiger als Argumente."</p>
+<p>Er schenkt ein, ohne zu fragen.</p>
+<p class="dialogue">„Die echten Entscheidungen werden nicht auf Schlachtfeldern getroffen. Sie werden an Tischen wie diesem getroffen — durch Menschen, die bereit sind, einen Moment zu warten, bevor sie handeln."</p>
+<p>Er schaut in die Ferne.</p>
+<p class="dialogue">„Mein Neffe ist in der Gesandtschaft. Ich hoffe, Ihr habt ihn besucht. Und noch etwas: Baelish — Lord Petyr Baelish. Ich warne Euch. Er nährt das Chaos, löst es nicht."</p>`,
+  choices:[
+    {k:'A', t:'"Zuko hat mir von Euch erzählt — nicht direkt, aber genug."', e:'Iroh lächelt warm.',
+     fx:{rel_iroh_trust:15, rel_iroh_bond:10, rel_iroh_met:true, item:'iroh_tea'}, next:'rathaus'},
+    {k:'B', t:'"Was wisst Ihr über die Nephos-Prophezeiung?"', e:'Iroh hält inne. Das überrascht ihn.',
+     fx:{rel_iroh_trust:12, flag_iroh_prophecy:true, rel_iroh_met:true}, next:'iroh_prophezeiung'},
+    {k:'C', t:'Schweigen — und Tee trinken.', e:'Iroh respektiert das.',
+     fx:{rel_iroh_trust:8, rel_iroh_met:true}, next:'rathaus'},
+  ]
+},
+
+iroh_prophezeiung:{
+  ch:'Kapitel 2', title:'Was der Drache weiß',
+  loc:'Teestand', day:2,
+  bg:'linear-gradient(135deg,#0a1010,#0a1515)',
+  cam:'📷 Iroh lehnt sich vor. Augen ernster.',
+  text:`<span class="char-name">IROH:</span>
+<p class="dialogue">„'Wenn die Sechs Feuer erloschen sind und das Bündnis in Asche liegt, wird ein Fremder kommen — der keine Seite kennt und jede versteht. In seiner Hand: die Wahl, Arkalos zu vereinen oder es endgültig zu verbrennen.'"</p>
+<p>Er setzt die Tasse ab.</p>
+<p class="dialogue">„Prophezeiungen neigen dazu, selbst erfüllend zu sein. Was ich weiß: Das Bündnis der Sechs Feuer war nicht perfekt — aber es war etwas. Alle sechs Elementar-Nationen kommen aus derselben Quelle. Das ist das Geheimnis, das das Imperium begraben will."</p>
+<p>Er drückt dir einen Beutel Teeblätter in die Hand.</p>
+<p class="dialogue">„Für einen langen Abend, wenn die Entscheidungen schwer sind."</p>`,
+  choices:[
+    {k:'A', t:'"Kein Versprechen — aber ich versuche, es gut zu machen."',
+     fx:{rel_iroh_bond:15, flag_prophecy_known:true}, next:'rathaus'},
+    {k:'B', t:'"Prophezeiungen sind für Menschen, die nicht handeln."', e:'Iroh lacht leise.',
+     fx:{rel_iroh_respect:10, flag_prophecy_known:true}, next:'rathaus'},
+  ]
+},
+
+/* ─ HYDRAKON ─ */
+hydrakon_gilde:{
+  ch:'Kapitel 2: Die Bucht', title:'Das Gewissen des Handels',
+  loc:'Nautilos — Gilderat', day:3,
+  bg:'linear-gradient(135deg,#0a1828,#051020)',
+  cam:'📷 Großer Ratsaal. Händler-Elite. Aber die Themen sind nicht Preise — sie sind Krieg.',
+  text:`<p>Nautilos, Hauptstadt der Hydrakon-Bucht, ist alles, was Kaloneros nicht ist: organisiert, präzise, reich. Und im Moment: verängstigt.</p>
+<p>Im Gilderat spricht Gildemeister Heron über Forderungen des Imperiums — Handelskontrolle, als Schutzabkommen verkleidet.</p>
+<span class="char-name">TYRION (per Boten):</span>
+<p class="dialogue" style="font-style:italic;color:rgba(201,168,76,.7);">„Wir brauchen jemanden ohne vorbelastete Loyalitäten, der eine Allianz schmiedet, die das Imperium abschreckt. Jemanden, der mehrere Fraktionen verbinden kann."</p>
+<span class="char-name">KATARA:</span>
+<p class="dialogue">„Ich kenne solche Person. Sie steht gerade im Raum."</p>
+<p>Alle Blicke richten sich auf dich.</p>`,
+  choices:[
+    {k:'A', t:'"Ich nehme es an — aber mit einer Bedingung: volle Transparenz."',
+     fx:{rep_dipl:10, rel_tyrion_trust:10, flag_hydrakon_agent:true, item:'hydrakon_doc'}, next:'rathaus'},
+    {k:'B', t:'"Ich arbeite für Arkalos — nicht für die Gilde. Der Unterschied zählt."', e:'Tyrion lächelt. Die Räte weniger.',
+     fx:{rep_hero:8, rel_tyrion_respect:15}, next:'rathaus'},
+    {k:'C', t:'"Ich brauche Zeit." (Abwarten)',
+     fx:{rep_dipl:3}, next:'rathaus'},
+  ]
+},
+
+/* ─ RATHAUS / AZULA ─ */
+rathaus:{
+  ch:'Kapitel 3: Die Kaisertochter', title:'Blaues Feuer',
+  loc:'Kaloneros — Großes Rathaus', day:3,
+  bg:'linear-gradient(135deg,#12141e,#1a1e2e)',
+  cam:'📷 Große Halle. Viele Gesichter. Dann: Zoom auf eine Figur, die reinkommt — Azula.',
+  text:`<p>Das Rathaus: hundert Diplomaten, Händler, Strategen — alle reden gleichzeitig über die imperiale Forderung.</p>
+<p>Dann öffnet sich die Hintertür.</p>
+<p>Sie ist kaum zwanzig, und trotzdem wirkt sie, als gehöre ihr jeder Raum, den sie betritt. <em>Kommandantin Azula Pyrotheon</em>. Dunkelrotes Gewand, keine Rüstung — sie braucht keine.</p>
+<span class="char-name">AZULA:</span>
+<p class="dialogue">„Die Kaiserin bietet vier Wochen. Danach... liegt die Entscheidung bei anderen Überlegungen."</p>
+<p>Ein Messer in Watte. Keine Drohung — nur vier Wochen und das Schweigen danach.</p>
+<p>Ihr Blick gleitet durch den Raum — und bleibt kurz auf dir hängen.</p>`,
+  choices:[
+    {k:'A', t:'Azula direkt ansprechen: „Vier Wochen ist ein Ultimatum, kein Angebot."', e:'Alle halten die Luft an.',
+     fx:{rep_hero:8, rep_tyrant:5, rel_azula_respect:10, rel_azula_met:true, flag_challenged_azula:true}, next:'azula_direkt'},
+    {k:'B', t:'Beobachten — Reaktionen lesen, nicht auffallen.', e:'Du lernst mehr.',
+     fx:{rep_dipl:5, rel_azula_met:true}, next:'baelish_begegnung'},
+    {k:'C', t:'Tyrion einen Blick zuwerfen — seine Reaktion ist wichtiger.', e:'Er nickt kaum merklich.',
+     fx:{rel_tyrion_trust:8}, next:'baelish_begegnung'},
+  ]
+},
+
+azula_direkt:{
+  ch:'Kapitel 3', title:'Das gefährlichste Lächeln',
+  loc:'Rathaus', day:3,
+  bg:'linear-gradient(135deg,#0a0510,#120818)',
+  cam:'📷 Alle Augen auf euch. Nahaufnahme Azulas Gesicht — perfekte Kontrolle.',
+  text:`<p>Azula dreht sich langsam zu dir. Zwei Schritte vorwärts — jeder kalkuliert.</p>
+<span class="char-name">AZULA:</span>
+<p class="dialogue" style="color:#b0c8e8;">„Ein Besucher, der Worte sehr genau nimmt."</p>
+<p class="dialogue" style="color:#b0c8e8;">„Das Imperium hat keine Ultimaten nötig. Wir haben Argumente. Unsere Argumente tragen Rüstung."</p>
+<p>Ein hauchdünnes Lächeln — das gefährlichste, das du je gesehen hast.</p>
+<p class="dialogue" style="color:#b0c8e8;">„Ich werde mir Euren Namen merken."</p>`,
+  choices:[
+    {k:'A', t:'"Ich werde meinen auch."', e:'Azula hält einen Schritt inne.',
+     fx:{rel_azula_respect:15, rep_hero:5, flag_azula_knows:true}, next:'baelish_begegnung'},
+    {k:'B', t:'Schweigen. Das letzte Wort gehört ihr — heute.',
+     fx:{rel_azula_respect:10, rep_dipl:5}, next:'baelish_begegnung'},
+  ]
+},
+
+/* ─ BAELISH ─ */
+baelish_begegnung:{
+  ch:'Kapitel 3: Das Spinnennetz', title:'Lord Baelish',
+  loc:'Rathaus — Seitenflur', day:3,
+  bg:'linear-gradient(135deg,#050508,#0a0a12)',
+  cam:'📷 Enger Flur. Nur sein Gesicht im Kerzenlicht. Alles andere Schatten.',
+  text:`<p>Nach der Versammlung wartet ein Mann im Seitenflur. Grau gekleidet, unauffällig — bis du in seine Augen schaust. Dann siehst du Schach. Jeder Mensch im Raum: eine Figur.</p>
+<span class="char-name">LORD PETYR BAELISH, „Spinnfinger":</span>
+<p class="dialogue">„Drei Tage in Kaloneros. Tyrion, Katara, Zuko. Das ist entweder brillante Strategie oder Glück. Ich hoffe auf ersteres."</p>
+<p>Er hält ein versiegeltes Dokument heraus.</p>
+<p class="dialogue">„Ich weiß: Cerseis Agent in Kaloneros hat Verbindungen zur Gilde. Tyrion ahnt es. Ich gebe Euch das — weil ein gut informierter Spieler interessanter ist. Gegenleistung: teilt mir etwas Interessantes, wenn Ihr es findet."</p>`,
+  choices:[
+    {k:'A', t:'Dokument annehmen + Angebot akzeptieren.', e:'Das Spinnernetz beginnt.',
+     fx:{rel_baelish_trust:10, rel_baelish_met:true, item:'baelish_letter', flag_baelish_deal:true}, next:'nacht_entscheidung'},
+    {k:'B', t:'Dokument nehmen — nichts versprechen.', e:'Baelish lächelt. Er erwartet keine andere Antwort.',
+     fx:{rel_baelish_met:true, item:'baelish_letter'}, next:'nacht_entscheidung'},
+    {k:'C', t:'Ablehnen — kein Deal mit Baelish.', e:'Er ist überrascht. Selten.',
+     fx:{rep_hero:5, flag_rejected_baelish:true}, next:'nacht_entscheidung'},
+  ]
+},
+
+/* ─ NACHT-ENTSCHEIDUNG ─ */
+nacht_entscheidung:{
+  ch:'Kapitel 3: Die Nacht', title:'Was Arkalos verlangt',
+  loc:'Kaloneros — Dachterrasse', day:4,
+  bg:'linear-gradient(135deg,#020508,#050a10)',
+  cam:'📷 Sternenhimmel. Die Stadt unter dir atmet. Ruhe nach dem Lärm.',
+  text:`<p>In der Stille der Nacht, nach allem, was du in vier Tagen erlebt hast, kannst du endlich nachdenken.</p>
+<p>Tyrion, Katara, Zuko, Iroh, Azula, Baelish — jeder hat dir etwas gegeben und etwas genommen.</p>
+<p>Und Azulas Frist: <strong>vier Wochen</strong>. Dann kommt das Imperium.</p>
+<p>Es gibt drei Wege für Arkalos:</p>
+<p><strong>Das Imperium</strong> annehmen — Cersei könnte eine Partnerin werden, kein Feind. Zuko wäre frei.</p>
+<p><strong>Eine Allianz</strong> schmieden — alle Fraktionen gegen das Imperium. Fast unmöglich.</p>
+<p><strong>Die Prophezeiung</strong> nutzen — das Geheimnis der Sechs Feuer. Das Fundament der Lüge zerstören.</p>`,
+  choices:[
+    {k:'A', t:'Ins Pyros-Reich reisen — Cersei treffen.', e:'Gefährlich. Aber vielleicht der einzige Weg.',
+     fx:{rep_dipl:5, day:+4}, next:'cersei_treffen'},
+    {k:'B', t:'Die Anemoia-Stämme suchen — Toph treffen.', e:'Die Stämme haben Krieger. Das wird wichtig.',
+     fx:{day:+3}, next:'toph_treffen'},
+    {k:'C', t:'Zum Nephos-Orden — die Prophezeiung vollständig verstehen.', e:'Wissen ist die stärkste Waffe.',
+     fx:{day:+5}, next:'aang_treffen'},
+  ]
+},
+
+/* ─ CERSEI ─ */
+cersei_treffen:{
+  ch:'Akt 2: Das Imperium', title:'Die Kaiserin auf ihrem Thron',
+  loc:'Ignaros — Thronsaal', day:8,
+  bg:'linear-gradient(135deg,#2a0a0a,#1a0303)',
+  cam:'📷 Imposanter Thronsaal. Cersei sitzt auf rotem Thron. Feuer rechts und links. Weitwinkel auf die Distanz.',
+  text:`<p>Kaiserin Cersei Pyrotheon ist nicht das Monster, das alle beschreiben.</p>
+<p>Sie ist klug — das siehst du sofort. Ihre Augen sind das Intelligenteste an ihr, und das Kälteste. Sie liest dich in einer Sekunde vollständig.</p>
+<span class="char-name">KAISERIN CERSEI:</span>
+<p class="dialogue" style="color:#e8c0c0;">„Ich werde direkt sein. Ich weiß, wer Ihr seid. Ich weiß, wen Ihr getroffen habt. Tyrion schickt mir immer interessante Menschen."</p>
+<p>Sie lehnt sich vor.</p>
+<p class="dialogue" style="color:#e8c0c0;">„Arkalos braucht Einheit — keine Koalitionen aus Angst. Mein Angebot: eine Position als kaiserlicher Vermittler. Oder: ein feindlicher Staat weniger."</p>
+<p>Im Garten danach, allein mit dir, ist sie ehrlicher:</p>
+<p class="dialogue" style="color:#e8c0c0;">„Ich habe Angst. Nicht vor Feinden — vor dem Bürgerkrieg, der Arkalos zerstört, wenn niemand handelt. Wenn Ihr einen anderen Weg seht — zeigt ihn mir."</p>`,
+  choices:[
+    {k:'A', t:'"Es gibt einen anderen Weg — aber er braucht Euch als Partnerin, nicht als Herrscherin."', e:'Cersei ist lange still.',
+     fx:{rel_cersei_trust:15, rel_cersei_bond:10, rel_cersei_met:true, flag_cersei_ally:true}, next:'grosser_gipfel'},
+    {k:'B', t:'"Eure Angst ist verständlich — aber sie rechtfertigt keine Invasion."', e:'Kühl. Ehrlich.',
+     fx:{rep_hero:10, rel_cersei_respect:8, rel_cersei_met:true}, next:'grosser_gipfel'},
+    {k:'C', t:'"Ich denke darüber nach." (Abwarten)',
+     fx:{rep_dipl:5, rel_cersei_met:true}, next:'grosser_gipfel'},
+  ]
+},
+
+/* ─ TOPH ─ */
+toph_treffen:{
+  ch:'Akt 2: Die Stämme', title:'Die Erde lügt nicht',
+  loc:'Anemoia-Ebenen — Stammesarena', day:7,
+  bg:'linear-gradient(135deg,#1a1408,#2a2010)',
+  cam:'📷 Riesige Arena aus gestampfter Erde. In der Mitte: ein Mädchen mit verbundenen Augen.',
+  text:`<p>In der Mitte der Stammesarena steht Toph Beifongan — fünfzehn Jahre, blind, und eben dabei, den dritten imperialen General zu besiegen.</p>
+<p>Als du eintrittst, dreht sie den Kopf in deine Richtung.</p>
+<span class="char-name">TOPH BEIFONGAN, „Die Blinde Banshee":</span>
+<p class="dialogue" style="color:#c8b870;">„Neu. Kaloneros-Stiefel. Zu sauber für die Ebenen. Und du trägst etwas Schweres — nicht am Körper. Im Kopf."</p>
+<p>Sie wartet.</p>
+<p class="dialogue" style="color:#c8b870;">„Ich spüre keine Lüge in deinen Schritten. Das ist selten. Was willst du wirklich?"</p>`,
+  choices:[
+    {k:'A', t:'"Ich will Arkalos vor einem Krieg retten, den niemand überlebt."',
+     fx:{rel_toph_trust:15, rel_toph_bond:10, rel_toph_met:true}, next:'toph_allianz'},
+    {k:'B', t:'"Ich weiß es noch nicht." (Ehrlich)',
+     fx:{rel_toph_trust:18, rel_toph_bond:8, rel_toph_met:true}, next:'toph_allianz'},
+    {k:'C', t:'In die Arena eintreten — Kampf als Antwort.',
+     fx:{rep_hero:8, rel_toph_respect:15, rel_toph_met:true}, next:'toph_allianz'},
+  ]
+},
+
+toph_allianz:{
+  ch:'Akt 2', title:'Was Erde verbindet',
+  loc:'Anemoia-Ebenen', day:7,
+  bg:'linear-gradient(135deg,#1a1408,#201810)',
+  cam:'📷 Sonnenuntergang. Gold und Orange. Freiheit.',
+  text:`<span class="char-name">TOPH:</span>
+<p class="dialogue" style="color:#c8b870;">„Acht Stämme, fünfzig Clans. Das Imperium nutzt unsere Spaltung. Wir streiten — sie marschieren."</p>
+<p>Sie legt die Finger flach auf den Boden. Der Boden zittert leicht.</p>
+<p class="dialogue" style="color:#c8b870;">„Ich kann die Stämme nicht einigen ohne einen Grund, den alle akzeptieren. Einen gemeinsamen Feind oder ein gemeinsames Ziel. Hilf mir das zu finden — ich kämpfe auf deiner Seite."</p>
+<p>Quest: <strong>„Die Einheit der Erde"</strong></p>`,
+  choices:[
+    {k:'A', t:'"Abgemacht. Was brauchst du zuerst?"',
+     fx:{rel_toph_loyalty:15, flag_anemoia_ally:true, item:'anemoia_totem', rel_toph_met:true}, next:'grosser_gipfel',
+     addQ:'🪨 Einheit der Erde: Hilf Toph, die Stämme zu einen.'},
+    {k:'B', t:'"Das Imperium selbst ist der Grund — ich zeige dir wie."',
+     fx:{rel_toph_trust:10, flag_anemoia_strategy:true, rel_toph_met:true}, next:'grosser_gipfel'},
+  ]
+},
+
+/* ─ AANG ─ */
+aang_treffen:{
+  ch:'Akt 2: Der Orden', title:'Wo der Wind entscheidet',
+  loc:'Nephos-Inseln — Tempel des Äthers', day:9,
+  bg:'linear-gradient(135deg,#051510,#0a2020)',
+  cam:'📷 Weißer Tempel auf einer Klippe. Aang schwebt dreißig Zentimeter über dem Boden.',
+  text:`<p>Aang, der Luftweise, ist sechzehn — und sieht jünger aus. Er schwebte, als du eintratest. Jetzt landet er leise.</p>
+<span class="char-name">AANG DER LUFTWEISE:</span>
+<p class="dialogue" style="color:#a0e8d8;">„Ich habe gewartet. Du bist nicht das, was ich erwartet habe."</p>
+<p>Er klingt nicht enttäuscht. Eher neugierig.</p>
+<p class="dialogue" style="color:#a0e8d8;">„Was du bist: jemand mit offenen Händen. Das ist wichtiger als alles andere."</p>
+<p>Er reicht dir eine alte Schriftrolle.</p>
+<p class="dialogue" style="color:#a0e8d8;">„Alle sechs Elementar-Nationen kommen aus derselben Quelle — einer einzigen alten Nation. Das Imperium will das verbergen. Weil es bedeutet, dass ihre 'überlegene Rasse' eine Lüge ist. Das ist das Geheimnis der Prophezeiung: Die Vereinigung kommt nicht durch Stärke — sondern durch das, was alle vergessen haben."</p>`,
+  choices:[
+    {k:'A', t:'"Das verändert alles. Kann ich das nutzen?"',
+     fx:{flag_knows_secret:true, item:'nephos_scroll', rep_dipl:10, rel_aang_trust:12, rel_aang_met:true}, next:'grosser_gipfel'},
+    {k:'B', t:'"Das ist eine Waffe, die in beide Richtungen schneidet."', e:'Aang nickt. Klügste Reaktion.',
+     fx:{flag_knows_secret:true, item:'nephos_scroll', rel_aang_trust:15, rel_aang_bond:8, rel_aang_met:true}, next:'grosser_gipfel'},
+  ]
+},
+
+/* ─ GROSSER GIPFEL ─ */
+grosser_gipfel:{
+  ch:'Akt 3: Der Gipfel', title:'Arkalos entscheidet',
+  loc:'Kaloneros — Die Große Halle', day:20,
+  bg:'linear-gradient(135deg,#0a0f1a,#141a28)',
+  cam:'📷 Epische Weitwinkelaufnahme. Alle Fraktionsführer im gleichen Raum. Zum ersten Mal seit zwölf Jahren.',
+  text:`<p>Es hat vier Wochen gedauert, aber du hast es geschafft: <em>alle Fraktionen sitzen am gleichen Tisch</em>.</p>
+<p>Tyrion und Katara für die Hydrakon-Gilde. Toph für die Anemoia-Stämme. Aang für den Nephos-Orden. Zuko — offiziell als Berater, tatsächlich als Stimme des Imperiums. Und Cersei... sie hat einen leeren Stuhl geschickt. Mit einer Nachricht: <em>„Sie wartet auf ein echtes Angebot."</em></p>
+<span class="char-name">TYRION:</span>
+<p class="dialogue">„Wir haben keine Armee, die der imperialen standhält. Wir haben kein Gold, das Cersei kauft. Was wir haben, ist Euch — und eine Geschichte, die alle betrifft."</p>
+<p>Er schaut dich an. Alle schauen dich an.</p>
+<p class="dialogue">„Jetzt ist es an Euch. Was ist euer Plan?"</p>`,
+  choices:[
+    {k:'A', t:'Das Geheimnis enthüllen: Alle Nationen kommen aus einer Quelle.', e:'Erfordert Nephos-Schriftrolle.',
+     fx:{rep_dipl:15, rep_hero:10, flag_used_secret:true},
+     requires:{item:'nephos_scroll'}, next:'ending_diplomacy'},
+    {k:'B', t:'Cersei direkt ein Partnerschaftsangebot machen — nicht Unterwerfung.', e:'Erfordert ihr Vertrauen.',
+     fx:{rep_dipl:10},
+     requires:{flag:'cersei_ally'}, next:'ending_alliance'},
+    {k:'C', t:'Krieg ansagen — alle Fraktionen gegen das Imperium.', e:'Blutig. Ungewiss. Möglich.',
+     fx:{rep_hero:10, rep_tyrant:5}, next:'ending_war'},
+    {k:'D', t:'Das Spiel von Baelish spielen — Cersei intern destabilisieren.', e:'Dunkel. Effektiv. Preis: alles.',
+     fx:{rep_tyrant:15, flag_dark_path:true},
+     requires:{flag:'baelish_deal'}, next:'ending_shadow'},
+  ]
+},
+
+/* ─── ENDINGS ─── */
+ending_diplomacy:{
+  ch:'Epilog', title:'Das Feuer erinnert sich',
+  loc:'Arkalos — Überall', day:28,
+  bg:'linear-gradient(135deg,#0a1820,#051018)',
+  cam:'📷 Panorama: Arkalos bei Sonnenaufgang. Kein Rauch. Kein Krieg.',
+  text:`<p>Die Schriftrolle hat alles verändert.</p>
+<p>Als die Wahrheit herauskam — dass alle sechs Nationen von derselben alten Quelle abstammen — brach etwas in Cersei auf, das stärker war als ihr Ehrgeiz. Nicht Reue. Aber Pause.</p>
+<p>Die Einigung ist fragil. Sie wird nicht halten. Aber sie hält — <em>heute</em>. Und heute ist genug.</p>
+<p>Zuko ist frei. Katara heilt die Letzten. Iroh trinkt Tee auf dem Marktplatz und lächelt. Toph schläft auf dem Boden und sagt, der Boden fühle sich ruhiger an.</p>
+<p>Tyrion wartet am Hafen — natürlich. Er hebt ein Glas.</p>
+<p class="dialogue">„Nicht schlecht für jemanden, der vor vier Wochen nichts außer einem Namen hatte."</p>`,
+  isEnding: true, endingType:'diplomacy',
+  choices:[{k:'—', t:'Zum Ende', next:'__END__'}]
+},
+
+ending_alliance:{
+  ch:'Epilog', title:'Die neue Allianz',
+  loc:'Arkalos', day:28,
+  bg:'linear-gradient(135deg,#0a1520,#050f18)',
+  cam:'📷 Cersei und Zuko, Seite an Seite. Zum ersten Mal.',
+  text:`<p>Cersei hat zugestimmt. Nicht weil sie überzeugt wurde — weil du ihr einen Weg gezeigt hast, der ihre Angst lindert ohne ihr Gesicht zu kosten.</p>
+<p>Das neue Bündnis ist kein altes Imperium und keine Unterwerfung. Es ist ein Rat. Alle Fraktionen, eine Stimme.</p>
+<p>Es hat Feinde. Es wird angefochten. Es wird vielleicht in zwanzig Jahren wieder zerbrechen.</p>
+<p>Aber heute ist Arkalos frei. Und das Fundament wurde nicht durch Blut gebaut — sondern durch ein Gespräch in einem Garten, das Cersei nie vergessen wird.</p>`,
+  isEnding:true, endingType:'alliance',
+  choices:[{k:'—', t:'Zum Ende', next:'__END__'}]
+},
+
+ending_war:{
+  ch:'Epilog', title:'Der Preis der Freiheit',
+  loc:'Arkalos — Schlachtfeld', day:28,
+  bg:'linear-gradient(135deg,#1a0808,#0f0303)',
+  cam:'📷 Schlachtfeld nach dem Kampf. Rauch. Stille. Dann: Sonnenaufgang.',
+  text:`<p>Der Krieg hat drei Wochen gedauert. Er hat Tausende Leben gekostet und Städte verändert.</p>
+<p>Das Imperium ist nicht besiegt — aber zurückgedrängt. Azula hat sich zurückgezogen. Cersei hat eine Verhandlung angeboten.</p>
+<p>Toph ist die Heldin des Krieges — und hasst den Titel. Katara heilt noch immer. Zuko kämpfte auf deiner Seite, obwohl er hätte flüchten können.</p>
+<p>Arkalos ist frei. Der Preis war hoch. War er es wert?</p>
+<p>Du weißt es nicht. Die Geschichte wird es entscheiden.</p>`,
+  isEnding:true, endingType:'war',
+  choices:[{k:'—', t:'Zum Ende', next:'__END__'}]
+},
+
+ending_shadow:{
+  ch:'Epilog', title:'Das Erbe des Schattens',
+  loc:'Arkalos', day:28,
+  bg:'linear-gradient(135deg,#050508,#0a0a12)',
+  cam:'📷 Nachts. Allein. Die Stadt schläft. Du wachst.',
+  text:`<p>Baelishs Plan hat funktioniert. Cersei hat durch interne Intrigen ihren Einfluss verloren — nicht durch Krieg, durch Verrat von innen.</p>
+<p>Das Imperium ist gespalten. Arkalos atmet frei.</p>
+<p>Aber Baelish lächelt. Und du weißt jetzt: Das Netz, das du gewebt hast, trägt auch deinen Namen. Ob du je wirklich frei davon sein wirst — das ist die Frage, die diese Nacht nicht beantwortet.</p>
+<p>Tyrion sieht dich anders an, seit er weiß, was getan wurde. Iroh sagt nichts. Er trinkt nur Tee.</p>
+<p>Manchmal ist das schlimmer als Worte.</p>`,
+  isEnding:true, endingType:'shadow',
+  choices:[{k:'—', t:'Zum Ende', next:'__END__'}]
+},
+
+}; // end SCENES
+
+// ── ENDING DATA ──
+const ENDINGS = {
+  diplomacy:{ icon:'🕊', title:'Frieden durch Wahrheit', sub:'„Du hast das Fundament der Lüge zerstört."', extra:'Diplomatischer Abschluss' },
+  alliance: { icon:'⚜', title:'Die neue Allianz', sub:'„Arkalos ist mehr als seine Teile."', extra:'Politischer Sieg' },
+  war:      { icon:'⚔', title:'Der Preis der Freiheit', sub:'„Manche Wahrheiten kosten Blut."', extra:'Militärischer Sieg' },
+  shadow:   { icon:'🌑', title:'Das Erbe des Schattens', sub:'„Im Dunkeln regiert man am längsten."', extra:'Schattenpfad' },
+};
+
+// ── UI HELPERS ──
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); document.getElementById(id).classList.add('on'); }
+function notify(msg, type='', dur=2800){
+  const c=document.getElementById('notifs');
+  const n=document.createElement('div'); n.className=`notif ${type}`; n.textContent=msg; c.appendChild(n);
+  setTimeout(()=>n.remove(), dur+400);
+}
+function updateRepUI(){
+  const r=G.rep;
+  document.getElementById('repHV').textContent=r.hero;
+  document.getElementById('repTV').textContent=r.tyrant;
+  document.getElementById('repDV').textContent=r.dipl;
+  document.getElementById('repHB').style.width=r.hero+'%';
+  document.getElementById('repTB').style.width=r.tyrant+'%';
+  document.getElementById('repDB').style.width=r.dipl+'%';
+}
+function updateDayUI(){ document.getElementById('dayBadge').textContent='Tag '+G.day; }
+function updateSidePanel(){
+  document.getElementById('spName').textContent=G.player.name||'Unbekannt';
+  document.getElementById('spDetails').textContent=(G.player.element||'?')+' · '+(G.player.bg||'?');
+  // rels
+  const rc=document.getElementById('spRels'); rc.innerHTML='';
+  Object.entries(G.rels).filter(([,r])=>r.met).forEach(([,r])=>{
+    const pct=Math.round((r.trust+r.loyalty)/2);
+    rc.innerHTML+=`<div class="rel-row"><div class="rel-icon">${r.icon}</div><div class="rel-info"><div class="rel-name">${r.name}</div><div class="rel-role">${r.role}</div></div><div class="rel-bar"><div class="rel-bar-fill" style="width:${pct}%"></div></div></div>`;
+  });
+  if(!rc.innerHTML) rc.innerHTML='<div style="font-size:.78rem;color:var(--dim);font-style:italic">Noch niemanden getroffen.</div>';
+  // quests
+  const qc=document.getElementById('spQuests'); qc.innerHTML='';
+  if(G.quests.length) G.quests.forEach(q=>{ qc.innerHTML+=`<div class="q-item active"><div class="q-name">${q}</div></div>`; });
+  else qc.innerHTML='<div style="font-size:.78rem;color:var(--dim);font-style:italic">Keine aktiven Quests.</div>';
+  // inv
+  const ic=document.getElementById('spInv'); ic.innerHTML='';
+  if(G.inv.length) G.inv.forEach(k=>{ const it=ITEMS[k]||{n:k,cls:''}; ic.innerHTML+=`<span class="inv-tag ${it.cls}">${it.n}</span>`; });
+  else ic.innerHTML='<div style="font-size:.78rem;color:var(--dim);font-style:italic">Leer.</div>';
+}
+
+// ── PANEL TOGGLE ──
+function togglePanel(){ const p=document.getElementById('sidePanel'); updateSidePanel(); p.classList.toggle('hidden'); }
+
+// ── LOAD SCENE ──
+function loadScene(id){
+  const sc=SCENES[id];
+  if(!sc){ console.warn('Scene not found:',id); return; }
+  G.scene=id;
+
+  // scroll top
+  document.getElementById('sceneWrap').scrollTop=0;
+
+  // BG
+  document.getElementById('sceneBg').style.background=sc.bg||'var(--bg-dark)';
+  document.getElementById('sceneLoc').textContent=sc.loc||'Arkalos';
+  document.getElementById('sceneChapter').textContent=sc.ch||'';
+  document.getElementById('sceneTitle').textContent=sc.title||'';
+  document.getElementById('camNote').textContent=sc.cam||'';
+  document.getElementById('sceneText').innerHTML=sc.text||'';
+  document.getElementById('tbTitle').textContent=sc.ch||'⚜ Aegis';
+
+  // day
+  if(sc.day) G.day=sc.day;
+  updateDayUI();
+
+  // choices
+  const cl=document.getElementById('choicesList'); cl.innerHTML='';
+  (sc.choices||[]).forEach(ch=>{
+    // check requires
+    let locked=false;
+    if(ch.requires){
+      if(ch.requires.item && !G.inv.includes(ch.requires.item)) locked=true;
+      if(ch.requires.flag && !G.flags[ch.requires.flag]) locked=true;
+    }
+    const b=document.createElement('button');
+    b.className='ch-btn'+(locked?' locked':'');
+    b.innerHTML=`<span class="ch-key">${ch.k}</span><span class="ch-text">${ch.t}${ch.e?`<span class="ch-eff">${ch.e}</span>`:''}</span>`;
+    if(!locked) b.onclick=()=>makeChoice(ch);
+    cl.appendChild(b);
+  });
+}
+
+// ── MAKE CHOICE ──
+function makeChoice(ch){
+  const fx=ch.fx||{};
+  // apply effects
+  Object.entries(fx).forEach(([k,v])=>{
+    if(k.startsWith('rep_')){
+      const rk=k.replace('rep_','');
+      if(G.rep[rk]!==undefined){
+        G.rep[rk]=Math.max(0,Math.min(100,G.rep[rk]+v));
+        const labels={hero:'⚔ Heldenruf',tyrant:'👁 Tyrannenruf',dipl:'🤝 Diplomatischer Ruf'};
+        const sign=v>0?'+':'';
+        const types={hero:'hero',tyrant:'tyrant',dipl:'dipl'};
+        notify(`${labels[rk]||rk}: ${sign}${v}`, types[rk]);
+      }
+    } else if(k.startsWith('rel_')){
+      const parts=k.replace('rel_','').split('_');
+      const npc=parts[0]; const attr=parts.slice(1).join('_');
+      if(G.rels[npc]){
+        if(attr==='met') G.rels[npc].met=true;
+        else if(G.rels[npc][attr]!==undefined){
+          G.rels[npc][attr]=Math.max(0,Math.min(100,G.rels[npc][attr]+v));
+          if(v>5) notify(`${G.rels[npc].icon} ${G.rels[npc].name}: Beziehung verbessert`, 'rel');
+          else if(v<-5) notify(`${G.rels[npc].icon} ${G.rels[npc].name}: Beziehung verschlechtert`, 'rel');
+        }
+      }
+    } else if(k==='item'){
+      if(!G.inv.includes(v)){ G.inv.push(v); const it=ITEMS[v]||{n:v}; notify(`📦 Erhalten: ${it.n}`, 'item'); }
+    } else if(k.startsWith('flag_')){
+      G.flags[k.replace('flag_','')]=v;
+    } else if(k==='day'){
+      G.day=Math.max(G.day, G.day+(v>0?v:0));
+    }
+  });
+  // add quest
+  if(ch.addQ && !G.quests.includes(ch.addQ)){
+    G.quests.push(ch.addQ);
+    notify('📋 Neue Quest: '+ch.addQ.split(':')[0], 'quest');
+  }
+  // add item shorthand
+  if(ch.fx && ch.fx.item && !G.inv.includes(ch.fx.item)){
+    // already handled above
+  }
+  updateRepUI();
+  // next scene
+  const next=ch.next;
+  if(!next || next==='__END__'){
+    // check if current scene is ending
+    const sc=SCENES[G.scene];
+    if(sc && sc.isEnding) showEnding(sc.endingType);
+    return;
+  }
+  if(SCENES[next]) loadScene(next);
+  else console.warn('Next scene not found:',next);
+}
+
+// ── ENDING ──
+function showEnding(type){
+  const e=ENDINGS[type]||{icon:'⚜',title:'Ende',sub:'',extra:''};
+  document.getElementById('endIcon').textContent=e.icon;
+  document.getElementById('endTitle').textContent=e.title;
+  document.getElementById('endSub').textContent=e.sub;
+  const sc=SCENES[G.scene];
+  document.getElementById('endText').innerHTML=sc?sc.text:'';
+  document.getElementById('endStats').innerHTML=`
+    <div class="end-stat"><div class="end-stat-v">${G.rep.hero}</div><div class="end-stat-l">Heldenruf</div></div>
+    <div class="end-stat"><div class="end-stat-v">${G.rep.tyrant}</div><div class="end-stat-l">Tyrannenruf</div></div>
+    <div class="end-stat"><div class="end-stat-v">${G.rep.dipl}</div><div class="end-stat-l">Diplomat</div></div>
+    <div class="end-stat"><div class="end-stat-v">${G.day}</div><div class="end-stat-l">Spieltage</div></div>
+    <div class="end-stat"><div class="end-stat-v">${e.extra}</div><div class="end-stat-l">Pfad</div></div>`;
+  show('sEND');
+}
+
+// ── SAVE SYSTEM ──
+function getSaveSlots(){ try{ return JSON.parse(localStorage.getItem('aegis_saves')||'{}'); } catch{ return {}; } }
+function saveSlotsToStorage(slots){ localStorage.setItem('aegis_saves', JSON.stringify(slots)); }
+
+function quickSave(){
+  const slots=getSaveSlots();
+  const key='slot_auto';
+  slots[key]={ state:JSON.parse(JSON.stringify(G)), date:new Date().toLocaleString('de-DE'), label:'Auto-Speichern' };
+  saveSlotsToStorage(slots);
+  notify('💾 Automatisch gespeichert', 'save');
+}
+
+function saveToSlot(i){
+  const slots=getSaveSlots();
+  const key='slot_'+i;
+  slots[key]={ state:JSON.parse(JSON.stringify(G)), date:new Date().toLocaleString('de-DE'), label:'Speicherstand '+i };
+  saveSlotsToStorage(slots);
+  notify('💾 In Slot '+i+' gespeichert', 'save');
+  renderSlots();
+}
+
+function loadFromSlot(i){
+  const slots=getSaveSlots();
+  const key='slot_'+i;
+  if(slots[key]){
+    G=JSON.parse(JSON.stringify(slots[key].state));
+    updateRepUI(); updateDayUI();
+    loadScene(G.scene);
+    show('sGAME');
+    closeModal();
+    notify('📂 Geladen: '+slots[key].label, 'save');
+  }
+}
+
+function deleteSlot(i){
+  const slots=getSaveSlots();
+  delete slots['slot_'+i];
+  saveSlotsToStorage(slots);
+  renderSlots();
+}
+
+function renderSlots(){
+  const slots=getSaveSlots();
+  const wrap=document.getElementById('slotsWrap'); wrap.innerHTML='';
+  [1,2,3,'auto'].forEach(i=>{
+    const key='slot_'+i;
+    const s=slots[key];
+    const label= i==='auto'?'Auto-Speichern':'Slot '+i;
+    const det=s?`${s.state?.player?.name||'?'} · Tag ${s.state?.day||1} · ${s.date}`:'Leer';
+    wrap.innerHTML+=`<div class="save-slot">
+      <div class="slot-info"><div class="slot-name">${label}</div><div class="slot-det">${det}</div></div>
+      <div class="slot-actions">
+        ${G.scene?`<button class="slot-btn sv" onclick="saveToSlot('${i}')">Speichern</button>`:''}
+        ${s?`<button class="slot-btn ld" onclick="loadFromSlot('${i}')">Laden</button>`:''}
+        ${s?`<button class="slot-btn dl" onclick="deleteSlot('${i}')">✕</button>`:''}
+      </div>
+    </div>`;
+  });
+}
+
+function openModal(){ renderSlots(); document.getElementById('saveModal').classList.remove('hidden'); }
+function closeModal(){ document.getElementById('saveModal').classList.add('hidden'); }
+
+// ── CHARACTER CREATION ──
+function pick(type, val, el){
+  picks[type]=val;
+  el.closest('.c-grid').querySelectorAll('.c-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function nextStep(){
+  if(step===1){
+    const nm=document.getElementById('pName').value.trim();
+    if(!nm){ notify('Bitte Namen eingeben!'); return; }
+    if(!picks.gender){ notify('Bitte Geschlecht wählen!'); return; }
+    G.player.name=nm; G.player.gender=picks.gender;
+  } else if(step===2){
+    if(!picks.element){ notify('Bitte Element wählen!'); return; }
+    G.player.element=picks.element;
+    // apply element bonuses
+    const EB={Feuer:{rep_tyrant:5,rep_hero:5},Wasser:{rep_dipl:10},Erde:{rep_hero:10},Wind:{rep_hero:3,rep_tyrant:3,rep_dipl:3},Äther:{rep_dipl:10},Schatten:{rep_tyrant:10}};
+    const b=EB[picks.element]||{};
+    Object.entries(b).forEach(([k,v])=>{ const rk=k.replace('rep_',''); if(G.rep[rk]!==undefined) G.rep[rk]=Math.min(100,G.rep[rk]+v); });
+  } else if(step===3){
+    if(!picks.bg){ notify('Bitte Herkunft wählen!'); return; }
+    G.player.bg=picks.bg;
+    const BB={Krieger:{rep_hero:10},Diplomat:{rep_dipl:15},Spion:{rep_tyrant:5,rep_dipl:5},Adliger:{rep_dipl:10},Gelehrter:{rep_dipl:5,rep_hero:5},Verbannter:{rep_hero:5,rep_tyrant:5,rep_dipl:5}};
+    const b=BB[picks.bg]||{};
+    Object.entries(b).forEach(([k,v])=>{ const rk=k.replace('rep_',''); if(G.rep[rk]!==undefined) G.rep[rk]=Math.min(100,G.rep[rk]+v); });
+    // summary
+    document.getElementById('summaryBox').innerHTML=`<b>Name:</b> ${G.player.name}<br><b>Element:</b> ${G.player.element}<br><b>Herkunft:</b> ${G.player.bg}<br><b>Heldenruf:</b> ${G.rep.hero} &nbsp; <b>Tyrannenruf:</b> ${G.rep.tyrant} &nbsp; <b>Diplomat:</b> ${G.rep.dipl}`;
+  } else if(step===4){
+    // start game
+    show('sGAME');
+    updateRepUI(); updateDayUI();
+    document.getElementById('spName').textContent=G.player.name;
+    loadScene('intro');
+    return;
+  }
+  step++;
+  document.querySelectorAll('.c-step').forEach(s=>s.classList.remove('on'));
+  document.getElementById('step'+step).classList.add('on');
+  document.querySelectorAll('.c-dot').forEach((d,i)=>d.classList.toggle('on', i<step));
+  document.getElementById('btnPrev').style.visibility= step>1?'visible':'hidden';
+  document.getElementById('btnNext').textContent= step===4?'Spiel beginnen ▶':'Weiter ▶';
+}
+
+function prevStep(){
+  if(step<=1) return;
+  step--;
+  document.querySelectorAll('.c-step').forEach(s=>s.classList.remove('on'));
+  document.getElementById('step'+step).classList.add('on');
+  document.querySelectorAll('.c-dot').forEach((d,i)=>d.classList.toggle('on', i<step));
+  document.getElementById('btnPrev').style.visibility= step>1?'visible':'hidden';
+  document.getElementById('btnNext').textContent='Weiter ▶';
+}
+
+// ── NEW GAME ──
+function startNew(){
+  G={ player:{name:'',element:'',bg:'',gender:''}, rep:{hero:30,tyrant:10,dipl:20},
+    rels:{
+      tyrion:{name:'Tyrion Lannist',icon:'🎭',role:'Stratege',trust:20,loyalty:15,met:false},
+      katara:{name:'Katara',icon:'🌊',role:'Heilerin',trust:30,loyalty:20,met:false},
+      zuko:{name:'Prinz Zuko',icon:'🔥',role:'Verbannter',trust:15,loyalty:10,met:false},
+      azula:{name:'Azula',icon:'⚡',role:'Kommandantin',trust:5,loyalty:5,met:false},
+      iroh:{name:'General Iroh',icon:'🍵',role:'Berater',trust:40,loyalty:30,met:false},
+      cersei:{name:'Kaiserin Cersei',icon:'👑',role:'Kaiserin',trust:5,loyalty:5,met:false},
+      toph:{name:'Toph Beifongan',icon:'🪨',role:'Kämpferin',trust:20,loyalty:10,met:false},
+      aang:{name:'Aang der Weise',icon:'✨',role:'Luftweise',trust:35,loyalty:25,met:false},
+      daenerys:{name:'Daenerys',icon:'🐉',role:'Anführerin',trust:25,loyalty:20,met:false},
+      jon:{name:'General Jon',icon:'❄',role:'General',trust:30,loyalty:30,met:false},
+      arya:{name:'Arya Stark',icon:'🗡',role:'Assassinin',trust:10,loyalty:5,met:false},
+      baelish:{name:'Lord Baelish',icon:'🕸',role:'Spymaster',trust:5,loyalty:5,met:false},
+    },
+    inv:[], quests:[], flags:{}, day:1, scene:'intro', chapter:'Prolog'
+  };
+  picks={gender:null,element:null,bg:null}; step=1;
+  document.querySelectorAll('.c-step').forEach(s=>s.classList.remove('on'));
+  document.getElementById('step1').classList.add('on');
+  document.querySelectorAll('.c-dot').forEach((d,i)=>d.classList.toggle('on',i===0));
+  document.getElementById('btnPrev').style.visibility='hidden';
+  document.getElementById('btnNext').textContent='Weiter ▶';
+  document.getElementById('pName').value='';
+  document.querySelectorAll('.c-card').forEach(c=>c.classList.remove('sel'));
+  show('sCREATE');
+}
+
+// ── TITLE STARS ──
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div'); s.className='star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s;opacity:${.2+Math.random()*.6}`;
+    c.appendChild(s);
+  }
+})();
+
+// ── REGION INFO ──
+function showRegionInfo(r){ /* simple notify */ }
+</script>
+</body>
+</html>
